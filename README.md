@@ -10,8 +10,11 @@ How to use the Mod:
 
 
 This project is a offline mod for world of tanks 0.8.2 to play the client fully offline on your own pc.
+
 If you need the client here is a download link: https://dl.wot-offline.com/World-of-tanks-pre1.0/0.8.02/EU/World_of_Tanks_0.08.02.00.00_EU_0335_SD.7z
+
 We also have a Discord Server for centralized versioning and partnered with other projects: https://discord.gg/HTGvB7bgAM
+
 We also have a archive to safe every old WoT version to preserve History on https://Wot-offline.com
 
 This project is a non-commercial modification for the legacy version of World of Tanks (0.8.2), created solely for educational and research purposes. Key Points:
