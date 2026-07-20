@@ -1,6 +1,14 @@
 # WoT-0.8.2-offline-Battles
 World of tanks offline Mod to play in Version 0.8.2 
 
+How to use the Mod:
+
+1. You download the files
+2. You have to unzip the files
+3. After unziping move the Folder named scripts into /res_mods/0.8.2/
+4. Start the game and Enjoy
+
+
 This project is a offline mod for world of tanks 0.8.2 to play the client fully offline on your own pc.
 If you need the client here is a download link: https://dl.wot-offline.com/World-of-tanks-pre1.0/0.8.02/EU/World_of_Tanks_0.08.02.00.00_EU_0335_SD.7z
 We also have a Discord Server for centralized versioning and partnered with other projects: https://discord.gg/HTGvB7bgAM
