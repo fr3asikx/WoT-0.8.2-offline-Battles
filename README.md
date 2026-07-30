@@ -11,7 +11,9 @@ How to use the Mod:
 
 This project is a offline mod for world of tanks 0.8.2 to play the client fully offline on your own pc.
 
-If you need the client here is a download link: https://dl.wot-offline.com/World-of-tanks-pre1.0/0.8.02/EU/World_of_Tanks_0.08.02.00.00_EU_0335_SD.7z
+If you need the client here is a download link: https://dl.wot-offline.com/World-of-tanks-pre1.0/0.8.02/EU/World_of_Tanks_0.08.02.00.00_EU_0335_SD.7z (Is not available currently)
+
+Alternative when the normal is not working: https://public-repo.com/wot/World-of-tanks-pre1.0/0.8.02/EU/World_of_Tanks_0.08.02.00.00_EU_0335_SD.7z
 
 We also have a Discord Server for centralized versioning and partnered with other projects: https://discord.gg/HTGvB7bgAM
 
