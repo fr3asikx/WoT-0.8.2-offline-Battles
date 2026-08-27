@@ -1,0 +1,409 @@
+offline-battle mod - World of Tanks 0.8.2
+===================================================
+Release 0.5 - battle results, medals and economy (2026-08-25)
+
+Play World of Tanks 0.8.2 offline: no login, no server. You go straight to the
+hangar, pick a tank and fight bots on the real maps.
+
+
+What changed in this build
+--------------------------
+The post-battle screen. What the table reports, which medals you get, and what
+a battle pays.
+
+A. THE DAMAGE TABLE WAS REPORTING THE WRONG NUMBER
+--------------------------------------------------
+Every bot's damage column showed the damage that bot had RECEIVED, not what it
+had dealt.
+
+The offline build kept three loose counters, all stored on the tank that was
+hit: how much the player had done to it, how many times, and how much everyone
+else had done to it. That last one cannot answer "what did bot 12 deal" - there
+is no shooter in it - and it was the number the results screen was handed.
+
+Damage is now kept the way the client's own battle_results_shared.py wants it:
+one record per (shooter, victim) pair, carrying the nine fields it names.
+Every column of the team table is a sum over those pairs, so dealt and received
+are two directions of the same record and cannot be swapped again.
+
+That fixed a run of things that all had the same root:
+
+  * Frags went to whoever had dealt the most damage to a tank, not to whoever
+    fired the killing blow. A shot that finishes off a tank you had barely
+    touched is your kill, and it was not being counted as one.
+  * Shots were never counted at all. The counter existed, was reset at the
+    start of every battle and read at the end, but nothing ever incremented it -
+    so the shots column was always zero and every accuracy figure with it.
+  * A ricochet or a bare track hit did not count as a hit.
+  * he_hits, damageAssisted and fire were always zero although the mod has HE
+    splash and a fire system.
+  * crits was set to 1 when you killed the tank and 0 otherwise, which is not
+    what the field means.
+  * Bots' shots, hits and pierced were invented from the damage figure - the
+    code said so: "Simulate some random shots and hits".
+
+B. MEDALS
+---------
+There were none: the results always carried an empty list.
+
+The thresholds ship with the client - arena_achievements.py has
+ACHIEVEMENT_CONDITIONS in full - but the routine that applies them sits behind
+`if IS_BASEAPP` and ran on the server, so it is rebuilt here against WG's own
+numbers.
+
+Both places the client draws medals are fed. The big panel on the personal tab
+reads dossierPopUps, which is what it has always read - it never looks at the
+'achievements' field - and the small icons on a team-table row read
+'achievements'. Same medals, two shapes.
+
+Kill-count bands behave: three kills is Pascucci, four is Dumitru, five or more
+is Burda, and only the band you are in is awarded.
+
+Two are deliberately never given. Supporter and Eagle Eye both want six
+assists, and the mod cannot yet say which ally finished off something you had
+spotted. An empty medal case is better than one filled from a number that means
+something else.
+
+C. CREDITS, XP AND SERVICE COSTS
+--------------------------------
+A battle paid a flat 10000 credits and 1000 XP, win or lose, whatever you did.
+
+The cost side is now real, read out of this client's own files: repairCost per
+hit point per vehicle (3.54 at tier 2, rising to 11.17 at tier 10), shell
+prices per round, and consumable prices. Ammunition is billed per shell type,
+so a magazine of gold rounds is charged in gold; every kit you actually fired
+is bought again.
+
+The earning side never shipped - that calculation ran on the server and WG has
+never published the coefficients. What is documented is the structure, and that
+is what is modelled: damage weighted by the tier difference to the victim, plus
+kills, plus damage an ally dealt to something you spotted, plus base capture
+and defence points, plus a survival bonus, and +50% for the winning team.
+
+The coefficients are calibrated so that meeting the real costs above reproduces
+the era's economy - mid tiers profit comfortably even in a loss, a mediocre
+tier-8 loss lands near break-even, and a mediocre tier-10 loss costs about 20k.
+Every one of them can be re-tuned from config.json without recompiling.
+
+D. BOTS DECIDE AT 10 Hz INSTEAD OF EVERY FRAME
+----------------------------------------------
+A bot's obstacle feelers are the most expensive thing in the battle tick -
+about 25 collision rays each, roughly 750 per frame with 30 bots, the largest
+single item in the performance profile.
+
+Deciding "left or right around this rock" does not need to happen thirty times
+a second. Bots are now split into three groups and only one group casts rays on
+any given frame; the other two keep steering on the memory that code already
+maintained. Driving and turning still run every frame for every bot, so nothing
+stutters. Set bot_ai_phases to 1 for the old behaviour.
+
+E. A DAMAGED TRACK NO LONGER SLOWS THE TURN
+-------------------------------------------
+Turning the hull is engine work. A damaged - not thrown - track used to halve
+the traverse rate; it now costs nothing, and a damaged engine is what slows the
+turn instead. A THROWN track still stops the turn outright, through a separate
+path that is unchanged.
+
+Worth knowing: 0.8.2 ships no module-to-stat table at all. The client only
+checks whether the engine, a track or the gun is DESTROYED. Everything about
+what a merely damaged module costs is reconstructed, in this build as in the
+last one.
+
+
+Release 0.4 + aiming, ballistics and UI fixes (2026-08-05)
+----------------------------------------------------------
+Gunnery. Aiming, the shell's flight, and everything that draws or reports it.
+
+1. THE GUN WAS AIMED AT THE SKY
+-------------------------------
+The single fault behind "the aiming point is much higher than it should be",
+"the projectile flies higher", and "shells are going up".
+
+The client works out what you are pointing at with a raycast, and that raycast
+uses BigWorld.player().spaceID. Offline the player is the ACCOUNT, whose space
+is not the space the battle map is loaded into - so the ray hit nothing, ever.
+The client's fallback for "hit nothing" is to aim at a point straight out at the
+shell's maximum range, and that is what the gun was given: a sky point at 720 m,
+every frame, whatever was actually under your reticle.
+
+So the gun elevated for a 720 m shot at a target 250 m away, and the round sailed
+over everything. The mod now casts that ray itself, in the battle space, through
+the exact screen pixel the reticle is drawn at - and it also tests the tanks
+along it, since offline tanks are not part of the engine's collision scene and a
+reticle on an enemy would otherwise aim at the ground behind him.
+
+2. SHELLS NOW FLY THEIR REAL TRAJECTORY
+---------------------------------------
+The barrel is elevated to drop the shell onto the target. A straight line along
+that elevated barrel therefore lands high and long by about twice the drop - a
+few centimetres on a fast gun, but 4.2 m at 400 m for a KV-2's howitzer.
+
+Three separate things were using that straight line and are now walking the real
+parabola, chord by chord, the way the game's own gun marker and projectile mover
+do it:
+
+  * the aiming circle, so it shows where the shell truly lands
+  * the hit test, so the round hits what the circle was on
+  * the TRACER, which was the last one and the most visible: it was drawn to a
+    straight-line end point, and the projectile mover then solved a launch that
+    reached that too-high point AND paid for gravity, so the round you watched
+    climbed well above the round that dealt the damage
+
+The aiming circle also stops on tanks now, so it no longer slides onto the
+ground behind the target you are aiming at.
+
+3. THE AIMING CIRCLE ITSELF
+---------------------------
+Ported from the client's own dispersion model, which the offline build had only
+approximated.
+
+  * Aim time was roughly 3.6x too long and the circle never actually closed:
+    it eased towards its ideal size instead of decaying and being caught by it.
+    Measured on a KV-2: full bloom to aimed took 11.05 s, against 3.07 s for the
+    real formula.
+  * Bloom faded IN gradually and depended on your framerate. It now lands in the
+    frame it happens, as it should.
+  * Every shell was thrown with the AFTER-shot cone rather than the circle you
+    aimed with - 4.85x too much scatter on every shot, however long you waited.
+  * A single flick of the mouse pinned the turret-rotation term at maximum,
+    because it measured the angle still to travel over one frame instead of the
+    rotation actually performed.
+  * Firing anything other than your first shell type used that first shell's
+    muzzle velocity and gravity for aiming.
+
+4. DAMAGE ARRIVES WITH THE SHELL
+--------------------------------
+Hit points, crits and kills were applied the instant you pulled the trigger,
+about a second before a slow round reached its target. They now wait out the
+shell's flight, for your rounds and for the bots'. Tracers also stop on the tank
+they hit instead of flying on past it, and a round that arrives at a tank someone
+else has already killed no longer steals the frag.
+
+5. BOTS
+-------
+  * Bots aimed dead at their target while firing WITH gravity, so every bot
+    round arced under its own aim point - and their straight hit test never
+    noticed, so the shell you watched fall short was not the shell that hit you.
+    They now aim and resolve on the real trajectory.
+  * Bot accuracy was a single hardcoded number for every tank in the game. It
+    now comes from the bot's own gun, scaled so the average is unchanged:
+    accurate guns are sharper, derpy ones wilder.
+  * A tank left at zero hit points could keep driving with its tracks turning.
+    Any route to zero now ends in a proper death.
+
+6. INTERFACE
+------------
+  * A used repair kit, med kit or extinguisher turned GREEN instead of going
+    grey - the panel reads -1 as "this equipment is active".
+  * Clicking a different shell type reloaded the gun immediately. As in the real
+    game, the first click only selects the type for the next load; a second click
+    on the same slot forces the swap.
+  * An autoloader drew a full magazine while the gun was still reloading, after
+    firing the last round of a shell type that ran out.
+  * Modules destroyed in the PREVIOUS battle stayed red on a fresh tank.
+  * Broken-module icons vanished when the spectator switched from an ally back
+    to yourself.
+  * Damage dealt to a tank that was not currently spotted left no trace at all -
+    no number, and its health bar came back showing the old value.
+
+7. VISUALS
+----------
+  * Allied tanks had no green silhouette. The game keeps one outline palette and
+    sets it up from a handler that only runs on a real player Avatar, so offline
+    the "friendly" colour was never registered.
+  * Enemy silhouettes showed THROUGH allied tanks, because the occlusion check
+    only tested terrain and buildings.
+  * Destroyed tanks did not burn: the wreck flames are authored at a hardpoint
+    that the world-space effect model does not have.
+  * Leaving a battle in sniper mode could leave the garage zoomed in.
+
+Everything else is Release 0.4, unchanged.
+
+
+Install
+-------
+This zip starts at  scripts/  and  gui/ .
+Extract it INTO:  <WoT 0.8.2 game root>/res_mods/0.8.2/
+so the files land at:  res_mods/0.8.2/scripts/client/gui/mods/mod_offhangar.py
+
+>>> UPDATING FROM AN EARLIER BUILD? DELETE TWO FILES FIRST <<<
+
+    res_mods/0.8.2/scripts/client/gui/mods/offhangar/offline_battle.pyc
+    res_mods/0.8.2/scripts/client/gui/mods/mod_offhangar.pyc
+
+This zip deliberately ships those two modules as source WITHOUT their compiled
+.pyc, because the fixes are source changes and the compiled form has to be
+regenerated with Python 2.6. The game prefers a .pyc over a .py, and extracting
+an archive does not remove files - so an old .pyc left in place will shadow the
+fix and nothing will change. Delete both, then extract. Every other module still
+ships its .pyc and loads normally.
+
+Start the game with WorldOfTanks.exe. If the mod loaded you go straight to the
+offline hangar instead of the login screen.
+
+To uninstall, delete  res_mods/0.8.2/scripts  and  res_mods/0.8.2/gui .
+Your settings survive in  <game root>/offhangar_user/  - delete that folder too
+if you want a clean slate.
+
+
+Settings
+--------
+Your editable copy is created on first launch at
+
+    <game root>/offhangar_user/config.json
+
+It is OUTSIDE res_mods, so updating or deleting the mod never touches it.
+Options that a mod update adds later fall back to their defaults until you add
+them to your file; the shipped defaults live in config_defaults.json next to
+the mod and are documented there.
+
+The ones people change most:
+
+  nickname                your in-game name
+  bots_per_team           15  (15 vs 15)
+  spotting_enabled        enemies must be spotted to be seen
+  perfect_accuracy        shells always land in the centre of the circle
+  prebattle_countdown_seconds / auto_spawn_delay_seconds
+
+New in this build:
+
+  bot_ai_phases           3 - how many frames a bot waits between steering
+                          decisions. 3 means it re-decides about ten times a
+                          second instead of thirty, which is where most of the
+                          bot cost went. Driving stays per-frame. 1 restores the
+                          old behaviour; above 3 they start clipping corners.
+
+  economy_tuning          {} - overrides any earning coefficient without
+                          recompiling (restart only). The costs are real client
+                          data and are not tunable. Keys are documented in
+                          config_defaults.json next to the mod.
+
+Carried over from the previous build:
+
+  ballistic_shells        true - shells follow their real gravity-bent path for
+                          both the aiming circle and the hit test. Set false to
+                          go back to a straight line along the barrel.
+  max_engine_sound_loops  10 - how many tanks may hold looping engine and track
+                          sound at once (the client mixes 64 sounds in total).
+  vehicle_sound_volume    0.6 - weights engine and track noise down for the
+                          battle only; your saved settings are untouched.
+
+
+In battle
+---------
+  O / P / L   spawn a bot where you aim - your own tank as an enemy clone /
+              a random enemy / a random ally
+  K           leave the battle
+
+
+Module and crew damage
+----------------------
+Shells damage modules and crew the way the era did: every device has its own HP
+pool from the vehicle descriptor, its own hit chance from the game's material
+table, and repairs itself back to roughly half over time. Damaged modules cost
+performance, destroyed ones stop working. Fires start from the engine or a
+holed fuel tank and burn out on their own. Repair kits, med kits and the fire
+extinguisher work, and the damage panel and crew voice lines follow.
+
+Interior modules and crew have no collision geometry in the 0.8.2 client, so
+their hit boxes come from a per-vehicle profile set covering 251 vehicles.
+Switch it off with  internal_layout_profiles: false  to fall back to a coarser
+compartment model.
+
+  module_test_mode: true    bot shells roll every module and crew crit but take
+                            no hull HP off you, so you can watch the system work
+                            without dying. Turn it off for normal play.
+
+
+Notes
+-----
+Debug logging is OFF by default. Turn on  debug_logging  in your config.json if
+you want the mod to write diagnostics into python.log. With it on, each battle
+ends with three lines worth reading:
+
+    Ledger: pairs=... kills=... spotted=...
+    Medals earned: ...
+    economy: xp=... credits=... repair=... ammo=(...)
+
+What is real and what is reconstructed, so nobody has to guess:
+
+  REAL, read from this client's own files - per-vehicle repair cost, shell and
+  consumable prices, the per-vehicle XP and credit multipliers, the factor
+  chain the results screen applies on top, and the medal thresholds.
+
+  RECONSTRUCTED, because it ran on the server and was never shipped - how much
+  a point of damage earns, and what a damaged (as opposed to destroyed) module
+  costs you. Both are calibrated rather than invented, and both are tunable
+  from config.json.
+
+0.8.2 is a 32-bit client. Long non-stop sessions across many different maps
+slowly grow memory - if it gets sluggish after a lot of battles, restart the
+client.
+
+The X-ray overlay (internal_xray_overlay) draws module and crew boxes through
+the armour. It is a debug view for offline battles and is OFF by default; the
+module is not even loaded while it is off. Do not turn it on in a client you
+log into a live server with.
+
+
+======================================================================
+BOTS NOW NAVIGATE (new in this build)
+-------------------------------------
+Bots used to drive straight at the nearest enemy. That was the only notion of
+"where to go" in the mod, so both teams converged on the middle of the map and
+died there. They now pathfind, and they go to places that suit the tank they
+are driving.
+
+This applies to maps that have been measured. On those, routes are laid out
+for all five classes on both teams: artillery holds well back, tank destroyers
+set up about a third of the way over, mediums and heavies push past the middle,
+lights go furthest forward. Several routes per class, down separate lanes, so
+fifteen heavies do not drive in single file.
+
+ON EVERY OTHER MAP NOTHING CHANGES AND NOTHING IS MEASURED. Bots behave exactly
+as they did before. Nothing map-specific ships with the mod, so out of the box
+no battle is slower than it used to be - you opt a map in when you want it.
+
+Where things are kept
+    <game>\offhangar_user
+av_dump\<map>.grid          your own, if you make one
+    <game>\offhangar_user
+av_dump\<map>.routes.json   the generated routes
+
+Yours always wins over the shipped one, and both live outside res_mods next to
+config.json, so mod updates leave them alone.
+
+There is nothing to configure. Painting a map in the editor is what asks for it
+to be measured; a map you have not painted is never touched. ("auto_routes":
+false turns the generated routes off and uses only what you painted.)
+
+
+EDITING WHERE BOTS GO (optional)
+--------------------------------
+If you want to decide the routes yourself, the editor ships with the mod at
+res_mods .8.2\scripts\offhangar_tools\.
+
+    python res_mods .8.2\scripts\offhangar_tools\paint_map.py
+
+Needs Python 3 with Pillow and Tk (pip install pillow). It finds your game
+folder by itself when run from inside it.
+
+You can draw
+    Points  a destination for a team and class
+    Routes  an ordered path - "go THIS way", the part a pathfinder cannot guess
+    Avoid   a keep-out area, which bots will route around
+
+A map must have been PLAYED once before you can edit it properly - that is when
+its mesh is measured. Open a map with no mesh and the editor says so, and offers
+which map you play stays your choice, and the mesh is made whenever you next
+happen to play that one. After that battle, reopen the map here and it is fully
+editable.
+
+Use Import to load the routes the game generated, so you start from what the
+bots already do instead of a blank map. Anything you paint and save overrides
+the generated routes for that map.
+
+Your painted profiles live in
+    res_mods .8.2\scripts\client\gui\mods\offhangar\painted
+Nothing here is required. Ignore the editor entirely and the bots still
+navigate - you will just get the automatic routes rather than your own.
