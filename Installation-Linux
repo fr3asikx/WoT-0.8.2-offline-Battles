@@ -1,0 +1,53 @@
+Tested on
+
+    Distro: CachyOS
+    GPU: NVidia GeForce GTX 3080 Ti
+    Steam: native package (not Flatpak)
+    Proton: 9.0-4
+
+Prerequisites
+
+    curl and a 7z-capable extractor (p7zip)
+    Steam with Proton available
+    ~15 GB free disk space for the client
+    Note: if you use the Flatpak version of Steam it is sandboxed and may not be able to see ~/Games. Either use native Steam or grant filesystem access (e.g. via Flatseal), otherwise the "Add a Non-Steam Game" browser won't find the .exe.
+
+1. Create new directories
+Create new directories, standalone from normal WoT installation (for example I did: ~/Games/WoT-0.8.2 and ~/Games/WoT-0.8.2-mod -> mkdir -p ~/Games/WoT-0.8.2/ ~/Games/WoT-0.8.2-mod/)
+
+2. Get the mod (zipped) and unzip it
+Navigate to ~/Games/WoT-0.8.2-mod (cd ~/Games/WoT-0.8.2-mod) and run curl -LO https://raw.githubusercontent.com/fr3asikx/WoT-0.8.2-offline-Battles/main/WoT-0.8.2-Offline-Battles-Release-0.4.zip. You should find the zip in the directory ~/Games/WoT-0.8.2-mod now. To unzip it use your zipping tool (I use 7z, so I ran 7z x ./WoT-0.8.2-Offline-Battles-Release-0.4.zip).
+
+After extracting you should have two folders in ~/Games/WoT-0.8.2-mod: scripts and gui. Both of them are needed in step 4.
+
+3. Get the client
+Navigate to ~/Games/WoT-0.8.2 (cd ~/Games/WoT-0.8.2). Go to the GitHub Repo right here (https://github.com/fr3asikx/WoT-0.8.2-offline-Battles) and download the client via the 7z-Download-Link available (for me it was the second one). Now this will by default go to your ~/Downloads folder. Move it to the ~/Games/WoT-0.8.2 folder (mv ~/Downloads/World_of_Tanks_0.08.02.00.00_EU_0335_SD.7z ~/Games/WoT-0.8.2/ - Note that this was the file I downloaded but whatever you downloaded here move it).
+So since you should already be in the ~/Games/WoT-0.8.2 folder, simply extract the 7z-file (I run 7z, so once again: 7z x ./World_of_Tanks_0.08.02.00.00_EU_0335_SD.7z).
+This step will take the most time where you simply sit and can do nothing but wait.
+
+4. Install the mod into the client
+This is easier than it sounds. First make sure the target folder exists (mkdir -p does nothing if the client already brought it along, so this is safe either way):
+
+mkdir -p ~/Games/WoT-0.8.2/res_mods/0.8.2/
+
+Now simply copy over the mod files you downloaded and unzipped in step 2:
+
+cp -r ~/Games/WoT-0.8.2-mod/scripts ~/Games/WoT-0.8.2-mod/gui/ ~/Games/WoT-0.8.2/res_mods/0.8.2/
+
+Check if mod_offhangar exists to make sure it worked: ls ~/Games/WoT-0.8.2/res_mods/0.8.2/scripts/client/gui/mods/mod_offhangar.py should output something like this:
+
+~/Games/WoT-0.8.2
+❯ ls ~/Games/WoT-0.8.2/res_mods/0.8.2/scripts/client/gui/mods/mod_offhangar.py
+.rw-r--r-- 32k youruser 5 Aug 17:19  /home/youruser/Games/WoT-0.8.2/res_mods/0.8.2/scripts/client/gui/mods/mod_offhangar.py
+
+5. Add to Steam and run under Proton
+Now you need to go on Steam and click "+ Add a Game" in the bottom left corner:
+Image
+
+Use the option "Add a Non-Steam Game..." and "Browse..." inside the popup window. Now you should see your Filemanager opening and you can easily navigate to your new ~/Games/WoT-0.8.2 folder. There you should see a WorldOfTanks.exe. Select it and it should be added to your library.
+
+Important: pick WorldOfTanks.exe directly and not the launcher (WOTLauncher.exe). The launcher will try to contact Wargaming and patch/update the client, which defeats the whole point of the offline setup.
+
+The last step now is setting up Proton to actually run the game. In your library you now need to set your Proton via Properties. To get there simply right click on the new game on the left sidebar in your library and select "Properties..." or click on the game and you should see a cogwheel or whatever far right, click it and select "Properties...". Navigate to the tab "Compatibility" and select "Force the use of a specific Steam Play compatibility tool". Underneath you should now be able to select a Steam Play compatibility layer. Proton 9.0-4 works perfectly fine for me but you can experiment with it however you want.
+
+Congratulations: You should now be able to successfully run World of Tanks 0.8.2 on Linux!!
