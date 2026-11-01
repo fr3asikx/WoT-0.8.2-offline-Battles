@@ -1,4 +1,4 @@
-# World of Tanks 0.8.2 — Offline Battles 2.0 (release) (EN)
+# World of Tanks 0.8.2 — Offline Battles 2.0
 
 🇺🇸EN:
 **Offline Battles 2.0 (release)** is a major update to the standalone offline modification for **World of Tanks 0.8.2** ([fr3asikx/WoT-0.8.2-offline-Battles](https://github.com/fr3asikx/WoT-0.8.2-offline-Battles)). Play full 15v15 battles against tactical AI bots and enjoy the complete 0.8.2 garage experience locally on your PC without an internet connection or external server.
