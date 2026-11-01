@@ -40,9 +40,9 @@
 **`FireToG`** — developer of the 0.9.3 Offline Mod, CBT tester. Thanks for testing early builds, sharing code, and the honest feedback
 
 **CBT testers:**
-- **[`KorbenDallas` (Mikhail WoT)](https://www.youtube.com/watch?v=lzVvsMd0g8g)** — WoT offline mods blogger/streamer *(E-100 and Maus)*
-- **`AnatoliKarpov`** — private server developer, community admin *(T57 Heavy)*
-- **`Brigadier`** — community moderator/admin *(AMX 50 Foch (155), JagdPz E-100, Bat.-Châtillon 25 t — closest 0.8.2 equivalents to his beloved WT auf E 100)*
+- **[`KorbenDallas` (Mikhail WoT)](https://www.youtube.com/watch?v=lzVvsMd0g8g)** — WoT offline mods blogger/streamer
+- **`AnatoliKarpov`** — private server developer, community admin
+- **`Brigadier`** — community moderator/admin
 
 **[WoT Offline Center](https://wot-offline.global/) community** — for the support and feature requests that shaped a lot of what ended up in this release!
 
@@ -117,9 +117,9 @@ This project is a non-commercial modification for the classic version of World o
 **`FireToG`** — разработчик оффлайн-мода для 0.9.3, тестер ЗБТ. За тестирование ранних сборок, обмен наработками и честную обратную связь
 
 **Команда ЗБТ-тестеров:**
-- **[`KorbenDallas` (Михаил WoT)](https://www.youtube.com/watch?v=lzVvsMd0g8g)** — блогер по оффлайн-модам WoT *(E-100 и Maus)*
-- **`AnatoliKarpov`** — разработчик приватного сервера, администратор сообщества *(T57 Heavy)*
-- **`Brigadier`** — администратор и модератор сообщества *(AMX 50 Foch (155), JagdPz E-100, Bat.-Châtillon 25 t — аналоги любимой WT auf E 100 в патче 0.8.2)*
+- **[`KorbenDallas` (Михаил WoT)](https://www.youtube.com/watch?v=lzVvsMd0g8g)** — блогер по оффлайн-модам WoT
+- **`AnatoliKarpov`** — разработчик приватного сервера, администратор сообщества
+- **`Brigadier`** — администратор и модератор сообщества
 
 **Сообществу [WoT Offline Center](https://wot-offline.global/)** — за поддержку и идеи, которые просили реализовать за всё время разработки. Без всех вас этого мода бы не было!
 
