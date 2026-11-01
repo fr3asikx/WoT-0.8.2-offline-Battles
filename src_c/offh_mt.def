@@ -1,0 +1,2 @@
+EXPORTS
+    initoffh_mt = _initoffh_mt
