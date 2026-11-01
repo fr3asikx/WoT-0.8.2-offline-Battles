@@ -3,6 +3,8 @@
 🇺🇸EN:
 **Offline Battles 2.0** is a major update to the standalone offline modification for **World of Tanks 0.8.2** ([fr3asikx/WoT-0.8.2-offline-Battles](https://github.com/fr3asikx/WoT-0.8.2-offline-Battles)). Play full 15v15 battles against tactical AI bots and enjoy the complete 0.8.2 garage experience locally on your PC without an internet connection or external server.
 
+**DOWNLOAD RELEASE FROM HERE (СКАЧАТЬ ГОТОВЫЙ БИЛД ЗДЕСЬ): https://github.com/fr3asikx/WoT-0.8.2-offline-Battles/releases/tag/release**
+
 ## Key Features in 2.0
 
 * **Full Offline Garage & Progression**: Buy, sell, and research vehicles across all 6 nations of patch 0.8.2, mount modules, equipment, consumables, and camouflage, train crew members, and track service record statistics and medals with persistent local profiles.
