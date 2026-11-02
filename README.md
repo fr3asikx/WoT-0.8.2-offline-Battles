@@ -25,7 +25,7 @@
 
 1. Get a clean **World of Tanks 0.8.2** client (available at [wot-offline.com](https://dl.wot-offline.com/World-of-tanks-pre1.0/0.8.02)).
 2. Download `Offline_Battles_2.0_release.zip` from the **Releases** page.
-3. Extract into your game root folder 'res_mods'.
+3. Extract into your WoT folder 'res_mods'.
 4. Run `WorldOfTanks.exe`, enter any nickname on the login screen, and click **Login**.
 5. Use the buttons next to **Battle!** in the garage header to select a map, mode, and team size, then go fight.
 
@@ -100,7 +100,7 @@ This project is a non-commercial modification for the classic version of World o
 
 1. Скачайте чистый клиент **World of Tanks 0.8.2** (например, с [wot-offline.com](https://dl.wot-offline.com/World-of-tanks-pre1.0/0.8.02)).
 2. Скачайте `Offline_Battles_2.0_release.zip` из раздела **Releases**.
-3. Распакуйте архив в корень папки `res_mods` из архива.
+3. Распакуйте архив в корневую папку игры WoT `res_mods` из архива.
 4. Запустите `WorldOfTanks.exe`, введите любой никнейм и нажмите **«Войти»**.
 5. Кнопками рядом с **«В бой!»** выберите карту, режим и формат команды — и в бой.
 
